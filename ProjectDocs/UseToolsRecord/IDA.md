@@ -85,3 +85,21 @@ adb forward tcp:11689 tcp:11689
 ![](images\POPO20230409-094428.png)
 
 点击 Debugger -> Debugger  Options -> Edit exceptions。找到SIGPWR和SIGXCPU，修改为Pass to Application试试。
+
+## 一键调试脚本
+
+```
+//启动调试
+
+adb forward tcp:23946 tcp:23946 
+
+adb shell am start -D  -n package/Launcher
+
+adb shell ps |findstr package
+
+adb forward tcp:23947 jdwp:IDA atach可以看该进程的id
+//上面内容可做成脚本，下面的内容要在IDA设置好调试后，shell窗口执行
+jdb -connect com.sun.jdi.SocketAttach:hostname=localhost,port=23947
+连接时需要关闭AS，避免8700端口被占用
+```
+

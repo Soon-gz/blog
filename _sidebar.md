@@ -8,3 +8,4 @@
   - [手游安全技术入门](./ProjectDocs/gameSafe/gameSafe.md)
 - 逆向工具食用
   - [IDA启动与附加调试](./ProjectDocs/UseToolsRecord/IDA.md)
+  - [内存dump so并修复](./ProjectDocs/UseToolsRecord/memDumpSO/内存dumpso并修复.md)
