@@ -6,6 +6,7 @@
 
 - 书籍过脑不留痕
   - [手游安全技术入门](./ProjectDocs/gameSafe/gameSafe.md)
+  - [安卓frida逆向与抓包实战](./ProjectDocs/fridaReverseAndCapture/fridaReverseAndCapture.md)
 - 逆向工具食用
   - [IDA启动与附加调试](./ProjectDocs/UseToolsRecord/IDA.md)
   - [IDA trace 函数指令](./ProjectDocs/UseToolsRecord/IDATracePython/IDATrace.md)
