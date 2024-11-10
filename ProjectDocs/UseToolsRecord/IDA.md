@@ -1,6 +1,6 @@
 IDA是逆向常用工具之一，非常强大。这里记录一下IDA的食用方式。
 
-## IDA启动调试root真机
+#### IDA启动调试root真机
 
 **注意：需要使用root手机，应用 debuggable=true，并关闭AndroidStudio开发工具。**
 
@@ -58,7 +58,7 @@ adb forward tcp:23947 jdwp:1978
 
 执行了jdb命令后，就成功的调试上了。
 
-## IDA 附加调试
+#### IDA 附加调试
 
 先让应用运行起来，然后通过IDA直接附加。不是通过adb am启动应用。
 
@@ -78,7 +78,7 @@ adb forward tcp:11689 tcp:11689
 
 
 
-## IDA调试常见异常
+#### IDA调试常见异常
 
 若是调试过程中一直弹窗提示异常，可尝试SIGPWR和SIGXCPU都Pass to Application。
 
@@ -86,7 +86,7 @@ adb forward tcp:11689 tcp:11689
 
 点击 Debugger -> Debugger  Options -> Edit exceptions。找到SIGPWR和SIGXCPU，修改为Pass to Application试试。
 
-## 一键调试脚本
+#### 一键调试脚本
 
 ```
 //启动调试
