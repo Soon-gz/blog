@@ -565,7 +565,7 @@
         }
     ```
 
-26. 
+26. frida hook 指定端口号；frida -H 127.0.0.1:27052 package -l a.js
 
 27. 
 
