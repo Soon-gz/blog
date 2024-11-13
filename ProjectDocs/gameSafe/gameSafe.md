@@ -682,195 +682,22 @@ x31：堆栈指针寄存器（SP），用于指向每个函数的栈顶。
 
 # 注入技术的实现原理
 
-## Android平台ptrace注入技术
-
-### 实现原理
-
-目前有两种实现ptrace注入模块到远程进 程的方法，
-
-第1种方法是直接远程调用dlopen> dlsym等函 数加载被注入模块并执行指定的代码。
-
-第2种方法是使用ptrace将shellcode注入远程进程的内存空间中，然后通 过执行shellcode加载远程进程模块；
-
-![](\images\12.png)
-
-1. 附加到远程进程上
-
-   ptrace注入的第1步是附加到远程进程上，调用方式如下：
-
-   ptrace(PTRACE_ATTACHr pid, NULL, NULL);
-
-   附加到远程进程上是通过调用request参数为PTRACE_ATTACH的ptrace函数， pid为需要附加的进程ID, addr参数和data参数为NULL。
-
-   在附加到远程进程后，远程进程的执行会被中断，此时父进程可以通过调用 waitpid函数来判断子进程是否进入暂停状态。waitpid的函数原型如下：
-
-   Pid_t waitpid (pid__t pid, int * status, int options);
-
-   其中，options参数为WUNTRACED时，表示如果对应pid的远程进程进入暂停状态, 则函数马上返回，可用于等待远程进程进入暂停状态。
-
-2.  读取和写入寄存器值
-
-   在通过ptrace改变远程进程的执行流程之前，需要先读取和保存远程进程的所有 寄存器的值，当detach操作发生时，可将远程进程写入已保存的原寄存器的值，用于 恢复远程进程原有的执行环境。
-
-   在实现读取和写入寄存器的值时，调用ptrace函数的request参数分别为 PTRACE_GETREGS和PTRACE_SETREGS。对应调用的代码如下：
-
-   ptrace(PTRACE_GETREGSr pid, NULL, regs);
-
-   ptrace(PTRACE_SETREGSr pid, NULL, regs);
-
-   在ARM处理器下，ptrace函数中data参数的regs为pt_regs结构的指针，从远程 进程获取的寄存器值将存储到该结构中。
-
-3. 远程进程的内存读取和写入数据
-
-   调用request参数为PTRACE_PEEKTEXT的ptrace函数可以从远程进程的内存空 间中读取数据，一次读取一个word大小的数据。该函数调用的实现如下：
-
-   ptrace(PTRACE_PEEKTEXTZ pid, pCurSrcBufz 0);
-
-   ptrace(PTRACE_POKETEXTZ pid, pCurDestBufx ITmpBuf);
-
-   其中addr参数为需要读取数据的远程进程内存地址，返回值为读取的数据。
-
-   调用request参数为PTRACE_POKETEXT的ptrace函数可以将数据写入远程进程 的内存空间中，同样一次写入一个word大小的数据。ptrace函数的addr参数为需要 写入数据的远程进程的内存地址，data参数为需要写入的数据内容。
-
-   在写入数据时需要注意，若写入的数据长度不是word大小的倍数，则在写入最 后一个不足word大小的数据时，要先保存原地址处的高位数据。
-
-4.  远程调用函数
-
-   在ARM处理器中，函数调用的前4个参数通过R0.R3寄存器来传递，剩余的参 数按从右到左的顺序压入栈中进行传递。实现代码如下：
-
-   ```
-   for (i = 0; i < num__params && i < 4; i ++)
-   {
-   	regs->uregs[i] = parameters[i];
-   }
-   if (i < num_params)
-   {
-   	regs->ARM_sp -= (num_params - i) * sizeof(long);
-   if (ptrace_writedata (pid, (void *) regs->ARM_spz (uint8_t *) &parameters [i] / (num_params - i) * sizeof(long)) == -1) return -1;
-   }
-   ```
-
-   在远程调用函数之前，需要先判断函数调用的参数的个数，如果小于4个，则将 参数按顺序分别写入R0-R3寄存器中，若大于4个，则首先调整SP寄存器在栈中 分配的空间大小，然后通过调用ptrace函数将剩余的参数写入栈中。
-
-   在写入函数的参数后，修改进程的PC寄存器为需要执行的函数地址。这里有一 点需要注意，在ARM架构下有ARM和Thumb两种指令，因此在调用函数前需要判 断函数被解析成哪种指令。可通过地址的最低位是否为1来判断调用地址处的指令是 为ARM还是Thumbo若为Thumb指令，则需要将最低位重新设置为0,并且将CPSR 寄存器的T标志位置位：若为ARM指令，则将CPSR寄存器的T标志位复位。
-
-5. 恢复寄存器值
-
-   在远程进程执行detach操作之前，需要将远程进程的原寄存器的环境恢复，保证 远程进程原有的执行流程不被破坏。如果不恢复寄存器的值，则执行detach操作之后 会导致远程进程崩溃。
-
-6. Detach 进程
-
-   脱离远程进程是ptrace注入的最后一个步骤，在执行detach操作之后，被注入进 程将继续运行。detach函数的调用如下：
-
-   ```
-   ptrace(PTRACE_DETACH, pid, NULL, 0);
-   ```
-
-### ptrace 实例测试
-
-使用2048小游戏进行注入测试，ptraceInject代码地址：
-
-https://github.com/Soon-gz/blog/tree/main/ProjectDocs/gameSafe/code/
-
-- 确定需要注入的进程名：com.estoty.game2048
-- 注入模块全路径：/data/local/tmp/source13/libInjectModule.so （注意，高版本需要放在应用安装目录下，避免dlopen没有权限）
-- 注入模块后调用模块函数名称：Inject_entry
-- 需要注意不同版本libc和linker在maps的映射路径
-- /apex/com.android.runtime/bin/linker
-- /apex/com.android.runtime/lib/bionic/libc.so
-- 注意：书籍中的代码获取dlopen等函数的起始地址方式在高版本不适用，可以通过解析动态表，拿到符号表以及字符串表地址，然后解析获取偏移地址，我在实验时用的IDA手动找当前手机的linker对应dlopen的偏移地址，所以在测试的时候，需要根据不同手机做修改。
-
-inject的主函数源码
-
-```
-int main(int argc, char *argv[]) {
-	char InjectModuleName[MAX_PATH] = "/data/local/tmp/source13/libInjectModule.so";    // 注入模块全路径
-	char RemoteCallFunc[MAX_PATH] = "Inject_entry";              // 注入模块后调用模块函数名称
-	char InjectProcessName[MAX_PATH] = "com.estoty.game2048";                      // 注入进程名称
-	
-	// 当前设备环境判断
-	#if defined(__i386__)  
-	LOGD("Current Environment x86");
-	return -1;
-	#elif defined(__arm__)
-	LOGD("Current Environment ARM");
-	#else     
-	LOGD("other Environment");
-	return -1;
-	#endif
-	
-	pid_t pid = FindPidByProcessName(InjectProcessName);
-	if (pid == -1)
-	{
-		printf("Get Pid Failed");
-		return -1;
-	}	
-	
-	printf("begin inject process, RemoteProcess pid:%d, InjectModuleName:%s, RemoteCallFunc:%s\n", pid, InjectModuleName, RemoteCallFunc);
-	int iRet = inject_remote_process(pid,  InjectModuleName, RemoteCallFunc,  NULL, 0);
-	//int iRet = inject_remote_process_shellcode(pid,  InjectModuleName, RemoteCallFunc,  NULL, 0);
-	
-	if (iRet == 0)
-	{
-		printf("Inject Success\n");
-	}
-	else
-	{
-		printf("Inject Failed\n");
-	}
-	printf("end inject,%d\n", pid);
-    return 0;  
-}  
-```
-
-注入模块的源码
-
-```
-#include <stdio.h>
-#include <stdlib.h>
-#include <utils/PrintLog.h>
-
-int Inject_entry()
-{
-	LOGD("Inject_entry Func is called\n");
-	return 0;
-}
-```
-
-注入成功后，inject 输出的日志：
-
-![](images\13.png)
-
-logcat输出的日志：
-
-![](\images\16.png)
-
-### shellcode 方式测试
-
-shellcode注入和dlopen方式类似，也是需要先找到远程进程的dlopen等函数地址，然后将地址复制给shellcode.s的汇编变量，然后将shellcode的汇编通过ptracce注入到远程mmap申请的内存空间中，然后设置寄存器的pc和sp为远端code的地址，最后执行code，代码中有详细的注释以及测试内容。
-
-inject输出以下内容：
-
-![](\images\18.png)
-
-logcat输出以下内容：
-
-![](\images\17.png)
+https://github.com/Soon-gz/blog/tree/main/ProjectDocs/UseToolsRecord/AndroidInject/AndroidInject.md
 
 ## Android平台Zygote注入技术
 
-代码地址：https://github.com/Soon-gz/blog/tree/main/ProjectDocs/gameSafe/code/
+代码地址：https://github.com/Soon-gz/blog/tree/main/ProjectDocs/gameSafe/
 
 Zygote是一个很重要的进程，因为绝大部分的应用程序进程都是由Zygote进程 “fork”生成的。“fork”是Linux操作系统中的一种进程复用技术，在这里需要了解的 是，如果进程A执行fork操作生成了进程B,那么进程B在创建时便拥有和进程A 完全相同的模块信息。
 
-![](\images\14.png)
+![](images\14.png)
 
 Zygote注入需要注意如下两个关键点。
 
 - 目标进程需要在注入Zygote完成后启动，才能成功被注入。
 - 成功注入Zygote之后启动的新进程将包含己注入Zygote的模块信息，所以 需要在新启动的进程执行前获得控制权，然后判断当前进程是否为目标进程，如果是, 则执行其余代码，否则交还控制权。
 
-![](\images\15.png)
+![](images\15.png)
 
 如图流程阐述了注入器怎样跨进程执行代码，以及在Linux进程之间通信。
 
