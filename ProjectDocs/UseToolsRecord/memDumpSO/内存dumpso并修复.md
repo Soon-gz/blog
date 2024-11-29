@@ -61,7 +61,7 @@ dd if=/proc/12321/mem of=/sdcard/dump/xman_jni.so skip=0xc141d ibs=0x1000 count=
 拿到dump的内存so文件后，使用Sofixer进行修复。
 
 ```
- .\Sofixer.exe -s .\xman_jni_0xc141d000_0x6000.so -o fix.so -d -m -dumpbase 0xc141d000
+ .\Sofixer32.exe -s .\xman_jni_0xc141d000_0x6000.so -o fix.so -d -m 0xc141d000
 /*********************************************sofixer***************************************/
 args counts : 9
 [main::argcv ]source : .\xman_jni_0xc141d000_0x6000.so
