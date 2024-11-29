@@ -1,6 +1,6 @@
 内存dump so主要是dump内存maps的数据。github上有开源修复工具，修复了一下开源的64位回编的bug。github：[SoFixer](https://github.com/Soon-gz/SoFixer.git)
 
-#### 简单原理
+## 简单原理
 
 作者参考了linker的ElfReader，对dump的文件按照Header，phdr，segments，sections进行解析。
 
@@ -25,7 +25,7 @@ bool ElfRebuilder::Rebuild() {
 }
 ```
 
-#### 实操
+## 实操
 
 使用root机器或者模拟器开启root权限，安装 xman.apk，该apk在ProjectDocs\UseToolsRecord\memDumpSO目录下。获取当前进程号。
 
@@ -101,7 +101,7 @@ Done!!!
 
 这个时候用IDA查看是可以正常打开查看完整的so结构的，如果so加固，或者结构被破坏，需要手动去定位修改的结构，去修复了。
 
-#### python脚本配合frida dump并修复
+## python脚本配合frida dump并修复
 
 这个方案在github上也有现成的了，比较好用，方便快捷，拿来主义，能偷懒就偷懒。[frida_dump](https://github.com/lasting-yang/frida_dump.git)
 

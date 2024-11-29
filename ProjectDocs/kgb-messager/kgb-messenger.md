@@ -1,4 +1,4 @@
-# kgb-messager
+## kgb-messager
 
 kgb-messager是CTF的一道题，这里记录一下解题过程，练练手。
 
@@ -53,7 +53,7 @@ RkxBR3s1N0VSTDFOR180UkNIM1J9Cg==解Base64后，这里有了第一个flag ： FLA
 
 ## 登录
 
-![2](\images\2.png)
+![2](images\2.png)
 
 可以看到登录源码
 
@@ -83,7 +83,7 @@ public void onLogin(View view) {
 
 查看R.string.username的值为codenameduchess，password的值为84e343a0486ff05530df6c705c8bb4。这里的值只有30位，而标准的md5应该是32位，所以应该是0084e343a0486ff05530df6c705c8bb4，上md解密网站，https://www.somd5.com/
 
-![3](\images\3.png)
+![3](images\3.png)
 
 所以用户名和密码就有了，用户名codenameduchess，密码 guset，输入后即可登录成功。
 
@@ -93,7 +93,7 @@ public void onLogin(View view) {
 
 ## 聊天页面
 
-![4](\images\4.png)
+![4](images\4.png)
 
 这里随意输入文本，没有任何响应，查看java源码MessengerActivity的onSendMessage
 
@@ -167,7 +167,7 @@ if __name__ == "__main__":
 
 得到原字符串：“Boris, give me the password”
 
-![5](\images\5.png)
+![5](images\5.png)
 
 onSendMessage里面还有一个r字段的判断。调用了b函数
 
@@ -237,7 +237,7 @@ z3 solver 知道结果，知道方程式，那么可以按照每个字符的加�
 
 " ay I *P EASE* h ve the  assword "
 
-![6](\images\6.png)
+![6](images\6.png)
 
 ### 第三个flag
 

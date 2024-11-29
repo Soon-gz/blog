@@ -1,5 +1,3 @@
-# 注入技术的实现原理
-
 ## Android平台ptrace注入技术
 
 ### ptrace函数介绍

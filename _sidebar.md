@@ -8,7 +8,7 @@
   - [手游安全技术入门](./ProjectDocs/gameSafe/gameSafe.md)
   - [安卓frida逆向与抓包实战](./ProjectDocs/fridaReverseAndCapture/fridaReverseAndCapture.md)
 - 逆向工具食用
-  - [IDA启动与附加调试](./ProjectDocs/UseToolsRecord/IDA.md)
+  - [IDA启动与附加调试](./ProjectDocs/UseToolsRecord/IDADebug/IDA.md)
   - [IDA trace 函数指令](./ProjectDocs/UseToolsRecord/IDATracePython/IDATrace.md)
   - [内存dump so并修复](./ProjectDocs/UseToolsRecord/memDumpSO/内存dumpso并修复.md)
   - [免root使用fridaHook](./ProjectDocs/UseToolsRecord/NoRootFrida/noRootFridaHook.md)
