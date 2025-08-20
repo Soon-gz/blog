@@ -112,27 +112,24 @@ lldb.exe
 
   ```bash
   platform select remote-android
-  Copy
   ```
-
+  
   - 输出举例
-
+  
     ```bash
     (lldb) platform select remote-android
       Platform: remote-android
     Connected: no
-    Copy
     ```
-
+  
 - 连接安卓（中的lldb-server）
 
   ```bash
   platform connect unix-abstract-connect:///data/local/tmp/dev/lldb_debug.sock
-  Copy
   ```
-
+  
   - 输出举例
-
+  
     ```bash
     (lldb) platform connect unix-abstract-connect:///data/local/tmp/dev/lldb_debug.sock
       Platform: remote-android
@@ -184,22 +181,20 @@ lldb.exe
 
   ```bash
   platform status
-  Copy
   ```
-
+  
   - 举例
-
+  
     - 连接前
-
+  
       ```bash
       (lldb) platform status
         Platform: remote-android
       Connected: no
-      Copy
       ```
-
+      
     - 连接后
-
+    
       ```bash
       (lldb) platform status
         Platform: remote-android
@@ -224,7 +219,6 @@ lldb.exe
 
 ```bash
 process attach -p 24058
-Copy
 ```
 
 - 说明
@@ -320,43 +314,40 @@ Architecture set to: aarch64-unknown-linux-android.
 
         ```bash
         adb shell setenforce 0
-        Copy
         ```
-
+        
         - 或：
-
+        
           - 先`adb shell`进入shell，再`su`切换成root用户，再用`setenforce 0`去关闭`SELinux`
-
+        
         - （之前和之后都可以）用
-
+        
           ```
           getenforce
           ```
-
+        
           去确认=查看当前SELinux状态
-
+        
           - ```
             Enforcing
             ```
-
+        
             ：SELinux已开启
-
+        
             ```bash
             1redfin:/data/local/tmp/dev/lldb # getenforce
             Enforcing
-            Copy
             ```
-
+            
           - ```
             Permissive
             ```
-
+          
             ：SELinux已关闭
-
+          
             ```bash
             redfin:/data/local/tmp/dev/lldb # getenforce
             Permissive
-            Copy
             ```
 
 ## 心得
@@ -376,14 +367,13 @@ frida-ps -Uai
     ```bash
     ➜  LiftFileManager_jadx_AlarmManager frida-ps -Uai | grep lift
     24058   Lift File Manager  com.lift.filemanager.android
-    Copy
     ```
-
+    
     - 可以看到要测试的app的：
       - 进程PID：`24058`
       - app名称：`Lift File Manager`
       - 包名：`com.lift.filemanager.android`
-
+  
 - （安卓手机的）adb的shell中
 
   ```bash
