@@ -13,4 +13,6 @@
   - [内存dump so并修复](./ProjectDocs/UseToolsRecord/memDumpSO/内存dumpso并修复.md)
   - [免root使用fridaHook](./ProjectDocs/UseToolsRecord/NoRootFrida/noRootFridaHook.md)
   - [Android动态注入SO](./ProjectDocs/UseToolsRecord/AndroidInject/AndroidInject.md)
+  - [LLDB调试Android](./ProjectDocs/UseToolsRecord/lldbDebugAndroid/LLDBDebugAndroid.md)
+  - [AndroidStudio LLDB调试](./ProjectDocs/UseToolsRecord/AndroidStudioLLDB/AndroidStudioLLDB.md)
 
