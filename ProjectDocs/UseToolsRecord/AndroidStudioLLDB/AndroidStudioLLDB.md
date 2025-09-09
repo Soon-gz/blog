@@ -74,7 +74,8 @@ adb shell am start -D -n com.example.android16k/.MainActivity
 之后可以配合IDA查看到的符号地址，加上这个基址进行断点分析。例如
 
 ```
-b set -a 0x70F8ED1470
+b 0x70F8ED1470
+breakpoint set -a 0x70F8ED1470
 ```
 
 lldb具体的调试命令可以去查 https://lldb.llvm.org/use/map.html
